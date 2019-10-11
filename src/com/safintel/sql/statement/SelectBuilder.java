@@ -293,6 +293,46 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
         return sql.toString();
     }
 
+    public String toCountString() {
+
+        StringBuilder sql = new StringBuilder("select COUNT(*) FROM (select ");
+
+        if (distinct) {
+            sql.append("distinct ");
+        }
+
+        if (columns.size() == 0) {
+            sql.append("*");
+        } else {
+            appendList(sql, columns, "", ", ");
+        }
+
+
+        appendList(sql, tables, " from ", ", ");
+        appendList(sql, joins, " join ", " join ");
+        appendList(sql, leftJoins, " left join ", " left join ");
+        appendList(sql, wheres, " where ", " and ");
+        appendList(sql, groupBys, " group by ", ", ");
+        appendList(sql, havings, " having ", " and ");
+        appendList(sql, unions, " union ", " union ");
+        appendList(sql, orderBys, " order by ", ", ");
+
+        if (forUpdate) {
+            sql.append(" for update");
+            if (noWait) {
+                sql.append(" nowait");
+            }
+        }
+
+        if(limit > 0)
+            sql.append(" limit " + limit);
+        if(offset > 0)
+            sql.append(", " + offset);
+
+        sql.append(") AS alias");
+        return sql.toString();
+    }
+
     /**
      * Adds a "union" select builder. The generated SQL will union this query
      * with the result of the main query. The provided builder must have the

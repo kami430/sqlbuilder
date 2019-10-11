@@ -1,6 +1,7 @@
 package com.safintel.sql.statement;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * A Spring PreparedStatementCreator that you can use like an InsertBuilder.
@@ -36,10 +37,29 @@ public class InsertCreator implements Serializable {
         return this;
     }
 
+    public InsertCreator setRaw(Map<String,String> rawMap) {
+        rawMap.forEach((column,value)->{
+            builder.set(column, value);
+        });
+        return this;
+    }
+
     public InsertCreator setValue(String column, Object value) {
         setRaw(column, ":" + column);
         setParameter(column, value);
         return this;
     }
 
+    public InsertCreator setValue(Map<String,Object> paramsMap) {
+        paramsMap.forEach((column,value)->{
+            setRaw(column, ":" + column);
+            setParameter(column, value);
+        });
+        return this;
+    }
+
+    @Override
+    public String toString(){
+        return builder.toString();
+    }
 }

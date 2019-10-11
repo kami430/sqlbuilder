@@ -8,7 +8,7 @@ import java.util.Map;
  *
  * @author <a href="mailto:john@krasnay.ca">John Krasnay</a>
  */
-public abstract class AbstractSqlCreator implements Serializable  {
+public abstract class AbstractSqlCreator implements Serializable {
 
     private int paramIndex;
 
@@ -21,8 +21,7 @@ public abstract class AbstractSqlCreator implements Serializable  {
     /**
      * Copy constructor. Used by cloneable creators.
      *
-     * @param other
-     *            AbstractSqlCreator being cloned.
+     * @param other AbstractSqlCreator being cloned.
      */
     public AbstractSqlCreator(AbstractSqlCreator other) {
         this.paramIndex = other.paramIndex;
@@ -58,12 +57,16 @@ public abstract class AbstractSqlCreator implements Serializable  {
         return this;
     }
 
-    public Map<String,Object> getParameter(){
+    public Map<String, Object> getParameter() {
         return ppsc.getParameterMap();
     }
 
     @Override
     public String toString() {
+        return ppsc.setSql(getBuilder().toString()).toString();
+    }
+
+    public String toSql() {
         return ppsc.setSql(getBuilder().toString()).toString();
     }
 

@@ -1,6 +1,9 @@
 package com.safintel.sql.statement;
 
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * A Spring PreparedStatementCreator that you can use like a DeleteBuilder.
  * Example usage is as follows:
@@ -40,14 +43,33 @@ public class DeleteCreator extends AbstractSqlCreator {
         return this;
     }
 
+    public DeleteCreator where(List<Predicate> predicates) {
+        predicates.forEach(predicate -> {
+            predicate.init(this);
+            builder.where(predicate.toSql());
+        });
+        return this;
+    }
+
     public DeleteCreator whereEquals(String expr, Object value) {
-
         String param = allocateParameter();
-
         builder.where(expr + " = :" + param);
         setParameter(param, value);
-
         return this;
+    }
+
+    public DeleteCreator whereEquals(Map<String,Object> paramsMap) {
+        paramsMap.forEach((expr,value)->{
+            String param = allocateParameter();
+            builder.where(expr + " = :" + param);
+            setParameter(param, value);
+        });
+        return this;
+    }
+
+    @Override
+    public String toString(){
+        return builder.toString();
     }
 
 }

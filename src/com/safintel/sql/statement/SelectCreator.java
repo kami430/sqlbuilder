@@ -1,7 +1,10 @@
 package com.safintel.sql.statement;
 
+import com.safintel.sql.statement.support.Join;
+import com.safintel.sql.statement.support.Support;
+import com.safintel.sql.statement.support.Table;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +38,7 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
     /**
      * Copy constructor. Used by {@link #clone()}.
      *
-     * @param other
-     *            SelectCreator being cloned.
+     * @param other SelectCreator being cloned.
      */
     protected SelectCreator(SelectCreator other) {
         super(other);
@@ -56,8 +58,15 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return new SelectCreator(this);
     }
 
-    public SelectCreator column(String name) {
-        builder.column(name);
+    public SelectCreator column(String... columns) {
+        for (String name : columns) {
+            builder.column(name);
+        }
+        return this;
+    }
+
+    public SelectCreator column(List<String> columns) {
+        columns.forEach((name) -> builder.column(name));
         return this;
     }
 
@@ -66,6 +75,10 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return this;
     }
 
+    public SelectCreator column(Map<String, Boolean> columns) {
+        columns.forEach((name, groupBy) -> builder.column(name, groupBy));
+        return this;
+    }
 
     public SelectCreator distinct() {
         builder.distinct();
@@ -79,6 +92,11 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
 
     public SelectCreator from(String table) {
         builder.from(table);
+        return this;
+    }
+
+    public SelectCreator from(Table table) {
+        builder.from(table.toSql());
         return this;
     }
 
@@ -115,6 +133,11 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return this;
     }
 
+    public SelectCreator leftJoin(Join join) {
+        builder.leftJoin(join.toSql());
+        return this;
+    }
+
     public SelectCreator noWait() {
         builder.noWait();
         return this;
@@ -147,8 +170,12 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return builder.toString();
     }
 
-    public String toSqlString() {
-        return super.toString();
+    public String toCountString() {
+        return builder.toCountString();
+    }
+
+    public String toCountSql() {
+        return getPreparedStatementCreator().setSql(builder.toCountString()).toString();
     }
 
     public UnionSelectCreator union() {
@@ -168,21 +195,33 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return this;
     }
 
+    public SelectCreator where(List<Predicate> predicates) {
+        predicates.forEach((predicate -> {
+            predicate.init(this);
+            builder.where(predicate.toSql());
+        }));
+        return this;
+    }
+
     public SelectCreator whereEquals(String expr, Object value) {
-
         String param = allocateParameter();
-
         builder.where(expr + " = :" + param);
         setParameter(param, value);
+        return this;
+    }
 
+    public SelectCreator whereEquals(Map<String, Object> params) {
+        params.forEach((expr, value) -> {
+            String param = allocateParameter();
+            builder.where(expr + " = :" + param);
+            setParameter(param, value);
+        });
         return this;
     }
 
     public SelectCreator whereIn(String expr, List<?> values) {
-
         StringBuilder sb = new StringBuilder();
         sb.append(expr).append(" in (");
-
         boolean first = true;
         for (Object value : values) {
             String param = allocateParameter();
@@ -193,10 +232,8 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
             sb.append(":").append(param);
             first = false;
         }
-
         sb.append(")");
         builder.where(sb.toString());
-
         return this;
     }
 }

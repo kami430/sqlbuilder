@@ -1,6 +1,9 @@
 package com.safintel.sql.statement;
 
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * A Spring PreparedStatementCreator that you can use like an UpdateBuilder.
  * Example usage is as follows:
@@ -57,13 +60,27 @@ public class UpdateCreator extends AbstractSqlCreator {
         return this;
     }
 
+    public UpdateCreator where(List<Predicate> predicates) {
+        predicates.forEach(predicate -> {
+            predicate.init(this);
+            builder.where(predicate.toSql());
+        });
+        return this;
+    }
+
     public UpdateCreator whereEquals(String expr, Object value) {
-
         String param = allocateParameter();
-
         builder.where(expr + " = :" + param);
         setParameter(param, value);
+        return this;
+    }
 
+    public UpdateCreator whereEquals(Map<String,Object> paramsMap) {
+        paramsMap.forEach((expr,value)-> {
+            String param = allocateParameter();
+            builder.where(expr + " = :" + param);
+            setParameter(param, value);
+        });
         return this;
     }
 

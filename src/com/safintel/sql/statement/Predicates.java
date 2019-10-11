@@ -366,7 +366,7 @@ public final class Predicates {
                 creator.setParameter(param, value);
             }
             public String toSql() {
-                return String.format("%s like ':%s'",expr, param);
+                return String.format("%s like :%s",expr, param);
             }
         };
     }
