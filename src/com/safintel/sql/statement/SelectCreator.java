@@ -65,8 +65,20 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
         return this;
     }
 
+    public SelectCreator column(Table table,String... columns) {
+        for (String name : columns) {
+            builder.column(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString());
+        }
+        return this;
+    }
+
     public SelectCreator column(List<String> columns) {
         columns.forEach((name) -> builder.column(name));
+        return this;
+    }
+
+    public SelectCreator column(Table table,List<String> columns) {
+        columns.forEach((name) -> builder.column(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString()));
         return this;
     }
 
@@ -77,6 +89,11 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
 
     public SelectCreator column(Map<String, Boolean> columns) {
         columns.forEach((name, groupBy) -> builder.column(name, groupBy));
+        return this;
+    }
+
+    public SelectCreator column(Table table,Map<String, Boolean> columns) {
+        columns.forEach((name, groupBy) -> builder.column(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString(), groupBy));
         return this;
     }
 
@@ -150,6 +167,16 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
 
     public SelectCreator orderBy(String name, boolean ascending) {
         builder.orderBy(name, ascending);
+        return this;
+    }
+
+    public SelectCreator orderBy(Table table,String name) {
+        builder.orderBy(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString());
+        return this;
+    }
+
+    public SelectCreator orderBy(Table table,String name, boolean ascending) {
+        builder.orderBy(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString(), ascending);
         return this;
     }
 

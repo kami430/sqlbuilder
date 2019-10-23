@@ -12,7 +12,7 @@ public class Join {
         this.table2 = table2;
         this.table2Alias = table2Alias;
         builder = new StringBuilder((this.table2Alias == null ? this.table2
-                : new StringBuilder(this.table2).append(" AS ").append(this.table2Alias).append(" ON ")));
+                : new StringBuilder(this.table2).append(" AS ").append(this.table2Alias))).append(" ON ");
     }
 
     public Join on(String field1, String field2) {
