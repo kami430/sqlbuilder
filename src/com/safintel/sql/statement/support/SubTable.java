@@ -56,7 +56,7 @@ public class SubTable extends Table {
     }
 
     private static String getRandomAlias() {
-        return new StringBuilder("T_").append(UUID.randomUUID().toString().substring(0, 2)).append(++aliasIndex).toString();
+        return new StringBuilder("T_").append(UUID.randomUUID().toString().substring(0, 2)).append(aliasIndex=++aliasIndex<10?aliasIndex:0).toString();
     }
 
     private boolean isEmpty(String str){
