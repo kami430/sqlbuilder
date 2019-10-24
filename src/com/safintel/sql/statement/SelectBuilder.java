@@ -34,10 +34,10 @@ import java.util.List;
  * .groupBy(&quot;d.name&quot;)
  * .having(&quot;total &gt; 1000000&quot;).toString();
  * </pre>
- *
+ * <p>
  * Note that the methods can be called in any order. This is handy when a base
  * class wants to create a simple query but allow subclasses to augment it.
- *
+ * <p>
  * It's similar to the Squiggle SQL library
  * (http://code.google.com/p/squiggle-sql/), but makes fewer assumptions about
  * the internal structure of the SQL statement, which I think makes for simpler,
@@ -46,14 +46,14 @@ import java.util.List;
  * <pre>
  * select.addCriteria(new MatchCriteria(orders, &quot;status&quot;, MatchCriteria.EQUALS, &quot;processed&quot;));
  * </pre>
- *
+ * <p>
  * With SelectBuilder, we assume you know how to write SQL expressions, so
  * instead you would write...
  *
  * <pre>
  * select.where(&quot;status = 'processed'&quot;);
  * </pre>
- *
+ * <p>
  * To include parameters, it's highly recommended to use the
  * {@link}, like this:
  *
@@ -66,7 +66,6 @@ import java.util.List;
  * .setParameter(&quot;name&quot;, &quot;Bob%&quot;)
  * .createPreparedStatement(conn);
  * </pre>
- *
  *
  * @author John Krasnay <john@krasnay.ca>
  */
@@ -94,9 +93,9 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
 
     private List<String> orderBys = new ArrayList<String>();
 
-    private int limit = 0;
-
     private int offset = 0;
+
+    private int limit = 0;
 
     private boolean forUpdate;
 
@@ -113,8 +112,7 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
     /**
      * Copy constructor. Used by {@link #clone()}.
      *
-     * @param other
-     *            SelectBuilder being cloned.
+     * @param other SelectBuilder being cloned.
      */
     protected SelectBuilder(SelectBuilder other) {
 
@@ -169,14 +167,14 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
         return this;
     }
 
-    public SelectBuilder limit(int limit, int offset) {
-        this.limit = limit;
+    public SelectBuilder limit(int offset, int limit) {
         this.offset = offset;
+        this.limit = limit;
         return this;
     }
 
     public SelectBuilder limit(int limit) {
-        return limit(limit, 0);
+        return limit(0, limit);
     }
 
     @Override
@@ -239,11 +237,9 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
     /**
      * Adds an ORDER BY item with a direction indicator.
      *
-     * @param name
-     *            Name of the column by which to sort.
-     * @param ascending
-     *            If true, specifies the direction "asc", otherwise, specifies
-     *            the direction "desc".
+     * @param name      Name of the column by which to sort.
+     * @param ascending If true, specifies the direction "asc", otherwise, specifies
+     *                  the direction "desc".
      */
     public SelectBuilder orderBy(String name, boolean ascending) {
         if (ascending) {
@@ -285,10 +281,10 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
             }
         }
 
-        if(limit > 0)
+        if (limit > 0 && offset > 0)
+            sql.append(" limit " + offset).append(", " + limit);
+        else if (limit > 0 && offset == 0)
             sql.append(" limit " + limit);
-        if(offset > 0)
-            sql.append(", " + offset);
 
         return sql.toString();
     }
@@ -307,7 +303,6 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
             appendList(sql, columns, "", ", ");
         }
 
-
         appendList(sql, tables, " from ", ", ");
         appendList(sql, joins, " join ", " join ");
         appendList(sql, leftJoins, " left join ", " left join ");
@@ -323,11 +318,6 @@ public class SelectBuilder extends AbstractSqlBuilder implements Cloneable, Seri
                 sql.append(" nowait");
             }
         }
-
-        if(limit > 0)
-            sql.append(" limit " + limit);
-        if(offset > 0)
-            sql.append(", " + offset);
 
         sql.append(") AS alias");
         return sql.toString();

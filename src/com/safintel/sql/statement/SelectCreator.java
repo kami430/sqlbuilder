@@ -1,7 +1,7 @@
 package com.safintel.sql.statement;
 
 import com.safintel.sql.statement.support.Join;
-import com.safintel.sql.statement.support.Support;
+import com.safintel.sql.statement.support.Page;
 import com.safintel.sql.statement.support.Table;
 
 import java.util.ArrayList;
@@ -95,6 +95,19 @@ public class SelectCreator extends AbstractSqlCreator implements Cloneable {
     public SelectCreator column(Table table,Map<String, Boolean> columns) {
         columns.forEach((name, groupBy) -> builder.column(new StringBuilder(table.getAliasNullToTable()).append(".").append(name).toString(), groupBy));
         return this;
+    }
+
+    public SelectCreator limit(int offset, int limit){
+        builder.limit(offset,limit);
+        return this;
+    }
+
+    public SelectCreator limit(int limit){
+        return limit(0,limit);
+    }
+
+    public SelectCreator limit(Page page){
+        return limit(page.getOffset(),page.getLimit());
     }
 
     public SelectCreator distinct() {

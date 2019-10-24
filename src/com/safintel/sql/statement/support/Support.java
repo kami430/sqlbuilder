@@ -1,5 +1,7 @@
 package com.safintel.sql.statement.support;
 
+import com.safintel.sql.statement.SelectCreator;
+
 public class Support {
     //------------------- join ------------------------//
     public static Join _j(String talbe1, String table2) {
@@ -32,8 +34,22 @@ public class Support {
         return new Table(table,alias);
     }
 
-    //------------------- where column -------------------//
+    //------------------- subTable -----------------------//
+    public static Table _st(String tableSql,String alias) { return new SubTable(tableSql,alias);}
+
+    public static Table _st(SelectCreator selectCreator,String alias){ return new SubTable(selectCreator,alias);}
+
+    public static Table _st(String tableSql){return new SubTable(tableSql);}
+
+    public static Table _st(SelectCreator selectCreator){return new SubTable(selectCreator);}
+
+    //------------------- where column ----------------//
     public static String _w(Table t1,String column){
         return new StringBuilder(t1.getAliasNullToTable()).append(".").append(column).toString();
+    }
+
+    //------------------- page ------------------------//
+    public static Page _p(Integer pageIndex,Integer pageSize){
+        return new Page(pageIndex,pageSize);
     }
 }
